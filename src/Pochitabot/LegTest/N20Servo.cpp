@@ -7,7 +7,11 @@ _Kp=0; //pid constants and variables initialization
 _Kd=0;
 _Ki=0;
 _preverror=0;
-_thI=0;
+_thI=10;
+
+}
+
+void N20Servo::setupmotor(int pins[3],float k[3],int refs[2]){
 
 }
 

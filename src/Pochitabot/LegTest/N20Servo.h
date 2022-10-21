@@ -18,6 +18,7 @@ class N20Servo
     void goTo(int target, int maxvel); //go to angle with maxvel in pwm
     void setrefs(int refs [2]); //refs for 90 and 0 degrees
     float setKgrad();
+    void setupmotor(int pins[3],float k[3],int refs[2]);
 
     private:
 

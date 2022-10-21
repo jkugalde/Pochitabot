@@ -19,34 +19,52 @@ RobotLeg::~RobotLeg()
     //dtor
 }
 
-void RobotLeg::registermotors(N20Servo * MA, N20Servo * MB){
+void RobotLeg::create_motors(){
 
-  _MA=MA;
-  _MB=MB;
+  _MA = new N20Servo();
+  _MB = new N20Servo();
+
+}
+
+void RobotLeg::setup_motors(int A_pins[3],float A_ks[3],int A_refs[2],int B_pins[3],float B_ks[3],int B_refs[2]){
+
+  _MA->assignpins(A_pins);
+  _MA->setk(A_ks);
+  _MA->setrefs(A_refs);
+  _MB->assignpins(B_pins);
+  _MB->setk(B_ks);
+  _MB->setrefs(B_refs);
 
 }
 
 void RobotLeg::goToF(float q1, float q2, int pwm){
-    _q1=q1*71/4068;
-    _q2=q2*71/4068;
+    _q1=q1;
+    _q2=q2;
     _MA->goTo(q1,pwm);
     _MB->goTo(q2,pwm);
 }
 
 void RobotLeg::goToI(float x, float y, int pwm){
 
+float A = x;
+float B = y;
+float C = (_a11*_a11-_a12*_a12+x*x+y*y)/(2*_a11);
 
-float C = sqrt(x*x+y*y);
-float nu = atan2(y,x);
-float gamma = acos((-_a12*_a12+_a11*_a11+C*C)/(2*_a11*C));
-float q1 = nu+gamma;
-float e = sqrt((_d-x)*(_d-x)+y*y);
-float fi = atan2(y,_d-x);
-float epsilon = acos((-_a22*_a22+_a21*_a21+e*e)/(2*_a21*e));
-float q2=3.14-epsilon-fi;
+float q1 = 2*atan2(-B-sqrt(A*A+B*B-C*C),-A-C);
 
-Serial.println(q1*4068/71);
-Serial.println(q2*4068/71);
+A = x - _d;
+B = y;
+C = (_a22*_a22+_d*_d-_a21*_a21-2*x*_d+x*x+y*y)/(2*_a22);
+
+float q2 = 2*atan2(-B+sqrt(A*A+B*B-C*C),-A-C);
+
+q2=q2*4068/71+360;
+q1=360+q1*4068/71;
+
+Serial.print("q1: ");
+Serial.println(q1);
+Serial.print("q2: ");
+Serial.println(q2);
 
 goToF(q1,q2,pwm);
 
