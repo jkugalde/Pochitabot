@@ -22,14 +22,12 @@ unsigned long timer = 0;
 unsigned long dt = 200;
 
 float xpos = 28.1;
-float ypos = 45.0;
-float a = 8.0;
+float ypos = 61.0;
+float a = 10.0;
 float b = 3.0;
 float r = 0;
-float theta = 50;
-float tt = 0;
-bool c = false;
-float dis = 19;
+float theta = 0;
+
 
 float leglengths[5] = {25.0,50.0,50.0,25.0,56.2};
 
@@ -60,48 +58,18 @@ timer=millis();
 void loop() {
 
 if(millis()-timer>=dt){
-//r=a*b/(sqrt(a*sin(theta)*a*sin(theta)+b*cos(theta)*b*cos(theta)));
+r=a*b/(sqrt(a*sin(theta)*a*sin(theta)+b*cos(theta)*b*cos(theta)));
 r=10;
-theta=theta+3.141592/2.0;  
-// c=!c;
-// dis=19*c;
+theta=theta+0.02;  
 timer=millis();
 }
 
-// if(sin(theta)>0.0){
-// c=0;
-// }
-// else{
-//   c=1;
-// }
+L11 -> goToI(xpos+r*cos(theta),57+r*sin(theta),210);
+L12 -> goToI(xpos+r*cos(theta),57+r*sin(theta),210);
 
-// L11 -> goToI(xpos+r*cos(theta),57+c*r*sin(theta),210);
-// L12 -> goToI(xpos+r*cos(theta),57+c*r*sin(theta),210);
 
-// if(sin(theta+3.141592)>0.0){
-// c=0;
-// }
-// else{
-//   c=1;
-// }
+L21 -> goToI(xpos+r*cos(theta+3.141592),57+r*sin(theta+3.141592),210);
+L22 -> goToI(xpos+r*cos(theta+3.141592),57+r*sin(theta+3.141592),210);
 
-// L21 -> goToI(xpos+r*cos(theta+3.141592),57+c*r*sin(theta+3.141592),210);
-// L22 -> goToI(xpos+r*cos(theta+3.141592),57+c*r*sin(theta+3.141592),210);
-
-// L11 -> goToI(xpos,40+dis/2,200);
-// L12 -> goToI(xpos,40+dis/2,200);
-// L21 -> goToI(xpos,ypos-dis,200);
-// L22 -> goToI(xpos,ypos-dis,200);
-
-// L11 -> goToF(80-tt,110+tt,255);
-// L12 -> goToF(80-tt,110+tt,255);
-// L21 -> goToF(80-tt,110+tt,255);
-// L22 -> goToF(80-tt,110+tt,255);
-
-L11 -> goToI(28.1,45,210);
-L12 -> goToI(28.1,45,210);
-
-L21 -> goToI(xpos,55+r*sin(theta+3.141592),210);
-L22 -> goToI(xpos,55+r*sin(theta+3.141592),210);
 
 }

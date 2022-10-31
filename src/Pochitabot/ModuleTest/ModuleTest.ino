@@ -30,7 +30,8 @@ c=45*sin(theta);
 timer=millis();
 theta=theta+0.02;  
 }
-MA1.goTo(90,130);
+
+MA1.goTo(90+c,130);
 
 }
 

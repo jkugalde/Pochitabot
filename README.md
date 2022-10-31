@@ -12,6 +12,10 @@ In the maths folder there is a file that plots the task space of the leg, an ell
 
 <img src="/imgs/joinpos.png" width="350">
 
+There are 3 programs in the src folder. One is ModuleTest, which is a sweep, LegTest, which draws an ellipse, and Pochitabot, where every leg draws an ellipse.
+
+The proper documentation of the code is not done yet.
+
 ## Further work
 
 ### General
