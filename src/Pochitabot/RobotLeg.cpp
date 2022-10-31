@@ -19,34 +19,83 @@ RobotLeg::~RobotLeg()
     //dtor
 }
 
-void RobotLeg::registermotors(N20Servo * MA, N20Servo * MB){
+void RobotLeg::create_motors(){
 
-  _MA=MA;
-  _MB=MB;
+  _MA = new N20Servo();
+  _MB = new N20Servo();
+
+}
+
+void RobotLeg::setup_motors(int A_pins[3],float A_ks[3],int A_refs[2],int B_pins[3],float B_ks[3],int B_refs[2]){
+
+  _MA->assignpins(A_pins);
+  _MA->setk(A_ks);
+  _MA->setrefs(A_refs);
+  _MB->assignpins(B_pins);
+  _MB->setk(B_ks);
+  _MB->setrefs(B_refs);
 
 }
 
 void RobotLeg::goToF(float q1, float q2, int pwm){
-    _q1=q1*71/4068;
-    _q2=q2*71/4068;
+    _q1=q1;
+    _q2=q2;
     _MA->goTo(q1,pwm);
     _MB->goTo(q2,pwm);
 }
 
 void RobotLeg::goToI(float x, float y, int pwm){
 
+float E1=-2*_a11*x;
+float F1=-2*_a11*y;
+float G1=_a11*_a11-_a12*_a12+x*x+y*y;
 
-float C = sqrt(x*x+y*y);
-float nu = atan2(y,x);
-float gamma = acos((-_a12*_a12+_a11*_a11+C*C)/(2*_a11*C));
-float q1 = nu+gamma;
-float e = sqrt((_d-x)*(_d-x)+y*y);
-float fi = atan2(y,_d-x);
-float epsilon = acos((-_a22*_a22+_a21*_a21+e*e)/(2*_a21*e));
-float q2=3.14-epsilon-fi;
+float E2=2*_a11*(-x+_d);
+float F2=-2*_a11*y;
+float G2=_d*_d+_a11*_a11-_a12*_a12+x*x+y*y-2*_d*x;
 
-Serial.println(q1*4068/71);
-Serial.println(q2*4068/71);
+float arg=E1*E1+F1*F1-G1*G1;
+
+float q1=0;
+float q2=0;
+
+if(arg>=0){
+q1=2*atan2(-F1+sqrt(arg),G1-E1);  
+}
+else{
+q1=2*atan2(-F1-sqrt(abs(arg)),G1-E1);
+}
+
+arg=E2*E2+F2*F2-G2*G2;
+
+if(arg>=0){
+q2=2*atan2(-F2-sqrt(arg),G2-E2); 
+}
+else{
+q2=2*atan2(-F2+sqrt(abs(arg)),G2-E2);
+}
+
+q2=q2*4068/71;
+q1=q1*4068/71;
+
+// Serial.print("q1: ");
+// Serial.println(q1);
+// Serial.print("q2: ");
+// Serial.println(q2);
+// Serial.print("x: " );
+// Serial.println(x);
+// Serial.print("y: ");
+// Serial.println(y);
+
+q1=constrain(q1,0,180);
+q2=constrain(q2,0,180);
+
+if(isnan(q1)){
+  q1=_q1;
+}
+if(isnan(q1)){
+  q1=_q2;
+}
 
 goToF(q1,q2,pwm);
 
@@ -62,18 +111,20 @@ int RobotLeg::getPos(int i){
     }
 }
 
-void RobotLeg::forwardk(){
+void RobotLeg::forwardk(float q1,float q2){
 
-float A=2*_a22*_a21*sin(_q2)-2*_a11*_a21*cos(_q1);
-float B = 2*_a22*_d-2*_a11*_a22*cos(_q1)+2*_a22*_a21*cos(_q2);
-float C1 = _a11*_a11-_a12*_a12+_a21*_a21+_a22*_a22+_d*_d;
-float C2 = -_a11*_a21*sin(_q1)*sin(_q2)-2*_a11*_d*cos(_q1)+2*_a21*_d*cos(_q2)-2*_a11*_a21*cos(_q1)*cos(_q2);
-float C = C1+C2;
-float theta2=2*atan2((A+sqrt(A*A+B*B-C*C)),(B-C));
-float theta1=asin((_a22*sin(theta2)+_a21*sin(_q2)-_a11*sin(_q1))/_a12);
-_x=_a11*cos(_q1)+_a12*cos(theta1);
-_y=_a11*sin(_q1)+_a12*sin(theta1);
-Serial.println(_x);
-Serial.println(_y);
+q1=q1*71/4068;
+q2=q2*71/4068;
+
+float E =2*_a12*(_d+_a11*(cos(q2)-cos(q1)));
+float F =2*_a11*_a12*(sin(q2)-sin(q1));
+float G=_d*_d+2*_a11*_a11+2*_d*_a11*cos(q2)-2*_d*_a11*cos(q1)-2*_a11*_a11*cos(q2-q1);
+
+
+float x= _d+_a11*cos(q2)+_a12*cos(2*atan2((-F+sqrt(E*E+F*F-G*G)),(G-E)));
+float y= _a11*sin(q2)+_a12*sin(2*atan2((-F-sqrt(E*E+F*F-G*G)),(G-E)));
+
+Serial.println(x);
+Serial.println(y);
 
 }

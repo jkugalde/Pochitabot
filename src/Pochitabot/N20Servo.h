@@ -28,12 +28,16 @@ class N20Servo
       float _Kp;
       float _Kd;
       float _Ki;
-      int _preverror;
-      int _Ierror;
+      double _preverror;
+      int Ierror;
+      int Derror;
       int _ref_0;
       int _ref_90;
       float _kgrad;
       float _thI;
+      unsigned long currenttime;
+      unsigned long previoustime;
+      double elapsedtime;
 
 };
 

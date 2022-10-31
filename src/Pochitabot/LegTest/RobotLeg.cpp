@@ -46,25 +46,38 @@ void RobotLeg::goToF(float q1, float q2, int pwm){
 
 void RobotLeg::goToI(float x, float y, int pwm){
 
-float A = x;
-float B = y;
-float C = (_a11*_a11-_a12*_a12+x*x+y*y)/(2*_a11);
+float E1=-2*_a11*x;
+float F1=-2*_a11*y;
+float G1=_a11*_a11-_a12*_a12+x*x+y*y;
 
-float q1 = 2*atan2(-B-sqrt(A*A+B*B-C*C),-A-C);
+float E2=2*_a11*(-x+_d);
+float F2=-2*_a11*y;
+float G2=_d*_d+_a11*_a11-_a12*_a12+x*x+y*y-2*_d*x;
 
-A = x - _d;
-B = y;
-C = (_a22*_a22+_d*_d-_a21*_a21-2*x*_d+x*x+y*y)/(2*_a22);
+float q1=2*atan2(-F1+sqrt(E1*E1+F1*F1-G1*G1),G1-E1);
+float q2=2*atan2(-F2-sqrt(E2*E2+F2*F2-G2*G2),G2-E2);
 
-float q2 = 2*atan2(-B+sqrt(A*A+B*B-C*C),-A-C);
+q2=q2*4068/71;
+q1=q1*4068/71;
 
-q2=q2*4068/71+360;
-q1=360+q1*4068/71;
+// Serial.print("q1: ");
+// Serial.println(q1);
+// Serial.print("q2: ");
+// Serial.println(q2);
+// Serial.print("x: " );
+// Serial.println(x);
+// Serial.print("y: ");
+// Serial.println(y);
 
-Serial.print("q1: ");
-Serial.println(q1);
-Serial.print("q2: ");
-Serial.println(q2);
+q1=constrain(q1,0,180);
+q2=constrain(q2,0,180);
+
+if(isnan(q1)){
+  q1=_q1;
+}
+if(isnan(q1)){
+  q1=_q2;
+}
 
 goToF(q1,q2,pwm);
 
@@ -80,18 +93,20 @@ int RobotLeg::getPos(int i){
     }
 }
 
-void RobotLeg::forwardk(){
+void RobotLeg::forwardk(float q1,float q2){
 
-float A=2*_a22*_a21*sin(_q2)-2*_a11*_a21*cos(_q1);
-float B = 2*_a22*_d-2*_a11*_a22*cos(_q1)+2*_a22*_a21*cos(_q2);
-float C1 = _a11*_a11-_a12*_a12+_a21*_a21+_a22*_a22+_d*_d;
-float C2 = -_a11*_a21*sin(_q1)*sin(_q2)-2*_a11*_d*cos(_q1)+2*_a21*_d*cos(_q2)-2*_a11*_a21*cos(_q1)*cos(_q2);
-float C = C1+C2;
-float theta2=2*atan2((A+sqrt(A*A+B*B-C*C)),(B-C));
-float theta1=asin((_a22*sin(theta2)+_a21*sin(_q2)-_a11*sin(_q1))/_a12);
-_x=_a11*cos(_q1)+_a12*cos(theta1);
-_y=_a11*sin(_q1)+_a12*sin(theta1);
-Serial.println(_x);
-Serial.println(_y);
+q1=q1*71/4068;
+q2=q2*71/4068;
+
+float E =2*_a12*(_d+_a11*(cos(q2)-cos(q1)));
+float F =2*_a11*_a12*(sin(q2)-sin(q1));
+float G=_d*_d+2*_a11*_a11+2*_d*_a11*cos(q2)-2*_d*_a11*cos(q1)-2*_a11*_a11*cos(q2-q1);
+
+
+float x= _d+_a11*cos(q2)+_a12*cos(2*atan2((-F+sqrt(E*E+F*F-G*G)),(G-E)));
+float y= _a11*sin(q2)+_a12*sin(2*atan2((-F-sqrt(E*E+F*F-G*G)),(G-E)));
+
+Serial.println(x);
+Serial.println(y);
 
 }

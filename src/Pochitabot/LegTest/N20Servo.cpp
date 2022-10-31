@@ -1,5 +1,6 @@
 #include "N20Servo.h"
 
+
 N20Servo::N20Servo()
 {
 
@@ -7,11 +8,13 @@ _Kp=0; //pid constants and variables initialization
 _Kd=0;
 _Ki=0;
 _preverror=0;
-_thI=10;
+_thI=8;
+Derror=0;
+Ierror=0;
+elapsedtime=0;
+currenttime=0;
+previoustime=0;
 
-}
-
-void N20Servo::setupmotor(int pins[3],float k[3],int refs[2]){
 
 }
 
@@ -53,7 +56,7 @@ void N20Servo::setk(float k [3]){ //assign pid constants
 	_Kp=k[0];
   _Kd=k[1];
   _Ki=k[2];
-  
+
 }
 
 float N20Servo::setKgrad(){ //transformation constant from degrees to values.
@@ -72,24 +75,39 @@ void N20Servo::setrefs(int refs[2]){
 void N20Servo::goTo(int target, int maxvel){
 
   target=int(_kgrad*target)+_ref_0;
-  //Serial.print("Position: ");
   int pos = readSens();
-  //Serial.print(pos);
-  int error = target-pos;
-  //Serial.print("  ");
-  //Serial.println("error: ");
-  int Derror = error-_preverror;
-  int Ierror=Ierror+error; 
+  double error = target-pos;
 
-  if(abs(error)>_thI){
+  currenttime=millis();
+  elapsedtime=double(currenttime-previoustime);
+ 
+  Derror = (error-_preverror)/elapsedtime;
+  Ierror +=error*elapsedtime;
+
+  if(abs(error)<=_thI){
     Ierror=0;
   }
+  if (error==0){
+    Ierror=0;
+  }
+    if (_preverror>0 && error<0 || error>0 && _preverror<0){
+    Ierror=0;
+  }
+
+  // Serial.print("error: ");
+  // Serial.println(_Kp*error);
+  // Serial.print("Derror: ");
+  // Serial.println(Derror*_Kd);
+  // Serial.print("Ierror: ");
+  // Serial.println(_Ki*Ierror);
   
-  int pow=int(_Kp*error)-int(_Kd*Derror)+int(_Ki*Ierror);
+  double pow=int(_Kp*error)+int(_Kd*Derror)+int(_Ki*Ierror);
 
   _preverror=error;
+  previoustime=currenttime;
   
   pow=constrain(pow,-maxvel,maxvel);
+  pow=int(pow);
   
   if(pow>0){ //direction
     act(pow,0);
@@ -99,5 +117,3 @@ void N20Servo::goTo(int target, int maxvel){
   }
 
 }
-
-
