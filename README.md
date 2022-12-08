@@ -6,6 +6,8 @@ Parts are [HERE](https://grabcad.com/library/tetrapod-robot-1).
 
 <img src="/imgs/pochi.png" width="350">
 
+<img src="/imgs/seact.png" width="350">
+
 In the maths folder there is a file that plots the task space of the leg, an ellipse and the joint angles to perform such ellipse, as the first approximation to a walking curve.
 
 <img src="/imgs/tspace.png" width="350">
